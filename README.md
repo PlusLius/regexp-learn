@@ -138,4 +138,13 @@ reg1.lastIndex;     // 22
 
 + pattern.test(str)
 
-`test`方法主要用于检测字符串中是否与模式匹配，常用语条件判断。匹配成功返回true，否则返回false
+`test`方法主要用于检测字符串中是否存在与模式匹配的字符串，常用语条件判断。匹配成功返回true，否则返回false。例如：
+```javascript
+var pattern = /\d{2}-\d{3}/,
+    str = '29-234',
+    str1 = '290-3345',
+    str2 = '1-33245';
+pattern.test(str);  // true
+pattern.test(str1); // true
+pattern.test(str2); // false
+```
