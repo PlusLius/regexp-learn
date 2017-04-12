@@ -57,3 +57,85 @@ mStr.match(mReg1);  // null
 // 匹配成功，启用多行之后，world变成第一行的结尾
 mStr.match(mReg2);  // [ 'world', index: 6, input: 'hello world\n hello life' ]
 ```
+
+#### 1.1 RegExp 实例属性
+
+每个RegExp实例对象都会存在下列属性：
+
+- global : 布尔值，表示是否设置了g标志
+- ignoreCase : 布尔值，表示是否设置了i标志
+- multiline : 布尔值，表示是否设置了m标志
+- lastIndex : 整数，表示开始搜索下一个匹配项的字符位置，从0算起
+- source : 正则表达式字符串表示，按照字面量形式而非传入构造函数中的字符串模式返回
+
+```javascript
+var reg = /\[hello\] regexp/i;
+
+reg.global;         // false
+reg.ignoreCase;     // true
+reg.multiline;      // false
+reg.lastIndex;      // 0
+reg.source;         // \[hello\] regexp
+
+var reg2 = new RegExp('\\[hello\\] regexp', 'ig');
+
+reg2.global;        // true
+reg2.ignoreCase;    // true
+reg2.multiline;     // false
+reg2.lastIndex;     // 0
+reg2.source;        // \[hello\] regexp 字面量形式返回
+```
+
+#### 1.2 RegExp 实例方法
+
++ pattern.exec(str)
+
+`exec`方法是RegExp的主要方法，主要用于提取捕获组(这个后面后讲到)，它接收一个匹配字符串作为参数，如果匹配成功，返回一个包含匹配项信息的数组；在没有匹配到的时候返回null。
+
+返回的数组包含匹配的字符串，同时另外包含两个属性：index 和 input。index表示的是匹配字符串在文本中的起始位置，input表示匹配的字符串。
+
+在**非全局模式**匹配下，如果字符串中含有与模式匹配的多个子字符串，那么只会返回第一个匹配项的结果。返回的数组中下标为0的位置表示匹配到的字符串，其余位置表示匹配到的捕获组信息；而在**全局模式**下(g)，如果依次执行`exec`方法，依次返回的是每一个匹配项信息的数组。例如：
+
+```javascript
+// 在非全局模式下，始终返回第一个匹配项的信息
+var reg = /<(\/?)(\w+)([^>]*?)>/,
+    str = "<div class='hello'><b>hello</b><i>regexp</i></div>";
+var matches = reg.exec(str);
+matches[0];         // <div class='hello'>
+matches[1];         // ""
+matches[2];         // div
+matches[3];         //  class='hello'
+matches.index;      // 0
+reg.lastIndex;      // 0
+
+var matches = reg.exec(str);
+matches[0];         // <div class='hello'>
+matches[1];         // ""
+matches[2];         // div
+matches[3];         //  class='hello'
+matches.index;      // 0
+reg.lastIndex;      // 0
+
+// 在全局模式匹配下，找到第一个匹配项信息之后，如果继续执行，会在字符串中继续查找下一个匹配项
+var reg1 = /<(\/?)(\w+)([^>]*?)>/g,
+    str1 = "<div class='hello'><b>hello</b><i>regexp</i></div>";
+var matches = reg1.exec(str1);
+matches[0];         // <div class='hello'>
+matches[1];         // ""
+matches[2];         // div
+matches[3];         //  class='hello'
+matches.index;      // 0
+reg1.lastIndex;     // 19
+
+var matches = reg1.exec(str1);
+matches[0];         // <b>
+matches[1];         // ""
+matches[2];         // b
+matches[3];         // ""
+matches.index;      // 19
+reg1.lastIndex;     // 22
+```
+
++ pattern.test(str)
+
+`test`方法主要用于检测字符串中是否与模式匹配，常用语条件判断。匹配成功返回true，否则返回false
