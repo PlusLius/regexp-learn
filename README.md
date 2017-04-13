@@ -1,6 +1,6 @@
 ## 正则表达式
 
-### 1 使用正则
+### 1. 使用正则
 
 创建正则表达式有两种方式，一种是以字面量方式创建，另一种是使用`RegExp`构造函数来创建。
 
@@ -270,10 +270,136 @@ console.log(matches.input);     // yuzhongzi_91@sina.com
 `split`可以接收两个参数，第二个参数可选，表示返回数组的最大长度。其中第一个参数是指定的分隔符，可以使正则表达式或者是字符串。例如：
 
 ```javascript
-var str4 = 'Hope left live become a cat.',
+var str4 = 'Hope left life become a cat.',
     pat1 = /\s/,
     pat2 = ' ';
 
-console.log(str4.split(pat1));      // [ 'Hope', 'left', 'live', 'become', 'a', 'cat.' ]
+console.log(str4.split(pat1));      // [ 'Hope', 'left', 'life', 'become', 'a', 'cat.' ]
 console.log(str4.split(pat2, 2));   // [ 'Hope', 'left' ]
+```
+
+### 2. 相关术语与操作符
+
+#### 2.1 精准匹配
+
+> 如果一个字符不是特殊字符或操作符，则表示该字符必须在表达式中出现。例如，在`/test/`正则中，有4个术语，它们表示这些字符必须在一个字符串中出现，才能匹配该模式。
+
+简单的理解：精准匹配可以理解为一对一匹配，即正则表达式中中的术语与字符串中的字符对应。
+
+#### 2.2 匹配一类字符
+
+表示匹配的一类代表一组特定含义的字符。例如：`[abc]`就代表匹配"a","b","c"字符中的一个，而不是代表匹配一个特定的字符。具体有如下几种：
+
+|字符        | 匹配内容                                           |
+|:-----------:|:------------------------------------------------|
+|[...]      |方括号内的任意字符                                    |
+|[^...]     |不在方括号内的任意字符                                 |
+|·          |除换行符和其他Unicode行终止符之外的任意字符              |
+|\w         |任意ASCII字符组成的单词，等价于[a-zA-Z0-9_]            |
+|\W         |任意不是ASCII字符组成的单词，等价于[^a-zA-Z0-9_]        |
+|\s         |任何Unicode空白符                                    |
+|\S         |任何非Unicode空白符的字符，注意w和S不同                 |
+|\d         |任何ASCII数字，等价于[0-9]                            |
+|\D         |除了ASCII数字之外的任何字符，等价于[^0-9]               |
+|\b         |单词边界                                            |
+|\B         |非单词边界                                           |
+|\t         |水平制表符                                           |
+|\v         |垂直制表符                                           |
+|\f         |换页符                                              |
+|\r         |回车                                                |
+|\n         |换行符                                              |
+|\cA:\cZ    |控制符，例如：\cM匹配一个Control-M                     |
+|\u0000:\uFFFF |十六进制Unicode码                                 |
+|\x00:\xFF  |十六进制ASCII码                                      |
+
+```javascript
+// [abc] 表示匹配abc其中的一个
+var str = 'abc',
+    pattern = /[abc]/;
+
+console.log(str.match(pattern));    // [ 'a', index: 0, input: 'abc' ]
+
+// [^abc] 表示不匹配abc字符中的任何一个
+var str = 'abcd',
+    pattern = /[^abc]/;
+
+console.log(str.match(pattern));    // [ 'd', index: 3, input: 'abcd' ]
+
+// · 匹配除换行以外的字符
+var str = '<p>I am a cat.</p>\n<b>what about you?</b>',
+    pattern = /.*/;
+
+console.log(str.match(pattern));    // [ '<p>I am a cat.</p>', index: 0, input: '<p>I am a cat.</p>\n<b>what about you?</b>' ]
+
+// \w 匹配包括下划线的任意单词字符
+var str = 'Your are _ so cute #*& so | beatiful ',
+    pattern = /\w+/g;
+
+console.log(str.match(pattern));   // [ 'Your', 'are', '_', 'so', 'cute', 'so', 'beatiful' ]
+
+// \W 匹配任意非单词字符
+var str = 'Your are _ so cute #*& so | beatiful ',
+    pattern = /\W+/g;
+
+console.log(str.match(pattern));    // [ ' ', ' ', ' ', ' ', ' #*& ', ' | ', ' ' ]
+
+// \s 匹配空白字符
+var str = 'Your \r\n\f ful',
+    pattern = /\s/g;
+
+console.log(str.match(pattern));    // [ ' ', '\r', '\n', '\f', ' ' ]
+
+// \S 匹配任意非空白字符
+var str = 'Your \r\n\f ful',
+    pattern = /\S/g;
+
+console.log(str.match(pattern));    // [ 'Y', 'o', 'u', 'r', 'f', 'u', 'l' ]
+
+// \d 匹配任意数字
+var str = '123helloworld34javascript',
+    pattern = /\d+/g;
+
+console.log(str.match(pattern));    // [ '123', '34' ]
+
+// \D 匹配任意非数字
+var str = '123helloworld34javascript',
+    pattern = /\D+/g;
+
+console.log(str.match(pattern));    // [ 'helloworld', 'javascript' ]
+
+// \b 匹配单词边界
+var str = 'I never come back',
+    pattern = /e\b/g;
+
+if (pattern.test(str)) {
+    console.log(RegExp['$&']);  // e
+    console.log(RegExp['$`']);  // I never com
+}
+
+// \B 匹配非单词边界
+var str = 'I never come back',
+    pattern = /e\B/g;
+
+if (pattern.test(str)) {
+    console.log(RegExp['$&']);  // e
+    console.log(RegExp['$`']);  // I n
+}
+
+// \n 匹配换行符
+var str = 'hello \n world',
+    pattern = /\n/;
+
+console.log(str.match(pattern));  // [ '\n', index: 6, input: 'hello \n world' ]
+
+// \u0000:\uFFFF 匹配十六进制Unicode字符
+var str = 'Visit W3School. Hello World!',
+    pattern = /\u0057/g;
+
+console.log(str.match(pattern));    // [ 'W', 'W' ]
+
+// \x00:\xFF 匹配十六进制ASCII字符
+var str = 'Visit W3School. Hello World!',
+    pattern = /\x57/g;
+
+console.log(str.match(pattern));    // [ 'W', 'W' ]
 ```
