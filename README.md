@@ -148,3 +148,132 @@ pattern.test(str);  // true
 pattern.test(str1); // true
 pattern.test(str2); // false
 ```
+
+#### 1.3 RegExp 构造函数属性
+
+构造函数静态属性，分别有一个长属性名和一个短属性名(Opera是例外，不支持短属性名)。
+
+| 长属性名       | 短属性名        | 说明                              |
+| ------------- |:-------------:| ----------------------------------:|
+| input         | $_            | 最近一次要匹配的字符串                 |
+| lastMatch     | $&            | 最近一次的匹配项                      |
+| lastParen     | $+            | 最近一次匹配的捕获组                   |
+| leftContext   | $`            | input字符串中lastMatch之前的文本       |
+| multiline     | $*            | 布尔值，表示是否所有表达式都使用多行模式   |
+| rightContext  | $'            | input字符串中lastMatch之后的文本       |
+
+```javascript
+var pattern = /(.)or/,
+    str = 'this is a normal string or meaningful';
+
+if (pattern.test(str)) {
+    console.log(RegExp.input);          // this is a normal string or meaningful
+    console.log(RegExp.lastMatch);      // nor
+    console.log(RegExp.lastParen);      // n
+    console.log(RegExp.leftContext);    // this is a
+    console.log(RegExp.multiline);      // false
+    console.log(RegExp.rightContext);   // mal string or meaningful
+
+    console.log(RegExp['$_']);          // this is a normal string or meaningful
+    console.log(RegExp['$&']);          // nor
+    console.log(RegExp['$+']);          // n
+    console.log(RegExp['$`']);          // this is a
+    console.log(RegExp['$*']);          // false
+    console.log(RegExp['$\'']);         // mal string or meaningful
+}
+```
+
+#### 1.4 用于模式匹配的String方法
+
++ str.search(pattern)
+
+它的参数是一个正则表达式，返回第一个与之匹配的子串的起始位置，如果找不到匹配的子串，它将返回-1。例如：
+
+```javascript
+var str = 'JavaScript is not java',
+    pattern = /Java/i,
+    pattern2 = /Java/ig;
+console.log(str.search(pattern));   // 0
+console.log(str.search(pattern2));  // 0
+```
+
+注：如果search()的参数不是正则表达式，则首先会通过RegExp构造方法将它转换成正则表达式，search()方法不支持全局检索，因为它忽略正则表达式参数中的修饰符g
+
++ str.replace(subStr | pattern, replaceStr | function)
+
+第一个参数是正则表达式或者是字符串，第二个参数是要替换的字符串。如果第一个参数是正则表达式，直接进行模式匹配，若为字符串，则会检索整个字符串进行替换，而不会转化为正则表达式。例如：
+
+```javascript
+var str = 'JavaScript is not java',
+    pattern = /Java/i;
+
+console.log(str.replace(pattern, 'live'));     // liveScript is not java
+console.log(str.replace('Java', 'live'));      // liveScript is not java
+
+// function
+var str2 = '123-456-789',
+    pattern2 = /(\d+)/g;
+
+str2.replace(pattern2, function(v) {
+    // 会执行三次
+    // 第一次打印123
+    // 第二次打印456
+    // 第三次打印789
+    console.log(v);
+});
+
+/**
+ * 第一个参数表示匹配的字符串
+ * 第二个参数表示匹配的元组(如果没有元组,则实际上回调函数只有三个值,即此时的d值会为undefined)
+ * 第三个参数表示字符串匹配的开始索引
+ * 第四个参数表示匹配的字符串
+ */
+str2.replace(pattern2, function(a, b, c, d) {
+    // 会执行三次
+    // 第一次打印123, 123, 0, 123-456-789
+    // 第二次打印456, 456, 4, 123-456-789
+    // 第三次打印789, 789, 8, 123-456-789
+    console.log(a, b, c, d);
+});
+
+// 此时没有进行元组匹配
+str2.replace(/\d+/g, function(a, b, c, d) {
+    // 会执行三次
+    // 第一次打印123, 0, 123-456-789, undefined
+    // 第二次打印456, 4, 123-456-789, undefined
+    // 第三次打印789, 8, 123-456-789, undefined
+    console.log(a, b, c, d);
+});
+```
+
++ str.match(pattern)
+
+`match`方法接收一个正则表达式，如果是在全局模式匹配下，匹配失败返回null，匹配成功会返回一个数组，包含所有匹配的值；如果是非全局模式，则返回第一个匹配项数组信息，数组中第一个元素为匹配字符串，余下为匹配的捕获组，另外这个数组还有两个属性，index和input，index表示匹配字符串的开始索引，input表示匹配的字符串。例如：
+
+```javascript
+var str3 = 'yuzhongzi_91@sina.com',
+    pattern3 = /^([a-zA-Z][\w\d]+)@([a-zA-Z0-9]+)(\.([a-zA-Z]+))+$/,
+    matches;
+
+matches = str3.match(pattern3);
+console.log(matches[0]);        // yuzhongzi_91@sina.com
+console.log(matches[1]);        // yuzhongzi_91
+console.log(matches[2]);        // sina
+console.log(matches[3]);        // .com
+console.log(matches[4]);        // com
+console.log(matches.index);     // 0
+console.log(matches.input);     // yuzhongzi_91@sina.com
+```
+
++ str.split(pattern | subStr, [ howmany ])
+
+`split`可以接收两个参数，第二个参数可选，表示返回数组的最大长度。其中第一个参数是指定的分隔符，可以使正则表达式或者是字符串。例如：
+
+```javascript
+var str4 = 'Hope left live become a cat.',
+    pat1 = /\s/,
+    pat2 = ' ';
+
+console.log(str4.split(pat1));      // [ 'Hope', 'left', 'live', 'become', 'a', 'cat.' ]
+console.log(str4.split(pat2, 2));   // [ 'Hope', 'left' ]
+```
