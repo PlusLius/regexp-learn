@@ -403,3 +403,27 @@ var str = 'Visit W3School. Hello World!',
 
 console.log(str.match(pattern));    // [ 'W', 'W' ]
 ```
+
+#### 2.3 转义
+
+与其他语言中的正则表达式类似，模式中使用的所有**元字符**都必须转义。正则表达式中的元字符包括：
+
+`( [ { \ ^ $ | ? * + . } ] )`
+
+由于RegExp构造函数的模式参数是字符串，所以在某些情况下需要双重转义。例如：
+
+| 字面量模式        |  等价的字符串        |
+|:---------------:|:-------------------:|
+|/\[abc\]/        |"\\[abc\\]"          |
+|/\w{2, 3}/       |"\\w{2, 3}"          |
+
+```javascript
+var reg1 = /\[abc\]/,
+    reg2 = new RegExp("\\[abc\\]"),
+    str = '[abc]';
+
+console.log(str.match(reg1));   // [ '[abc]', index: 0, input: '[abc]' ]
+console.log(str.match(reg2));   // [ '[abc]', index: 0, input: '[abc]' ]
+console.log(reg1.source);       // \[abc\]
+console.log(reg2.source);       // \[abc\]
+```
