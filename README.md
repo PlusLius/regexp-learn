@@ -632,9 +632,83 @@ var str = '<p>hello</p>',
 console.log(str.match(reg));    // 兼容情况下会匹配到"hello"字符串
 ```
 
-### 3. 常用正则表达式
+### 3. 正则表达式的编译
 
-#### 3.1 去除首尾字符串空格(trim)
+> 正则表达式的两个重要阶段是编译和执行。编译发生在正则表达式第一次被创建的时候，而执行则是发生在我们使用编译过的正则表达式进行字符串匹配的时候。
+
+因此，为了性能发面的提升，建议对需要用到的正则表达式采用预定义(预编译)的方式。
+
+```javascript
+// 使用预定义方式
+var str = '<a href="http://www.rynxiao.com">rynxiao.com</a>',
+    reg = /http:\/\/(?:.?\w+)+/,
+    start_time = new Date().getTime(),
+    i = 0,
+    end_time,
+    duration;
+
+for (; i < 10000000; i++) {
+    reg.test(str);
+}
+
+end_time = new Date().getTime();
+duration = end_time - start_time;
+
+console.log(duration);
+
+// 采用临时创建新的正则表达式实例
+var str = '<a href="http://www.rynxiao.com">rynxiao.com</a>',
+    start_time = new Date().getTime(),
+    i = 0,
+    end_time,
+    duration;
+
+for (; i < 10000000; i++) {
+    /http:\/\/(?:.?\w+)+/.test(str);
+}
+
+end_time = new Date().getTime();
+duration = end_time - start_time;
+
+console.log(duration);
+```
+
+测试数据(可能不准，但大致上能说明一些问题)
+
+|执行次数          |预编译(ms)     |直接使用(ms)    |
+|:---------------:|:------------:|:------------:|
+|100000           |18            |22            |
+|1000000          |110           |151           |
+|10000000         |1355          |1517          |
+|100000000        |11395         |12358         |
+
+另外：用构造器`(new RegExp(...))`创建正则表达式的使用。这种技术允许我们，在运行时通过动态创建字符串构建和编译一个正则表达式。对于构建大量重复的复杂表达式来说，这是非常有用的。
+
+```javascript
+<div class="samurai ninja"></div>
+<div class="ninja samurai"></div>
+<div></div>
+<span class="samurai ninja ronin"></span>
+
+<script>
+function findClassInElements(className, type) {
+    var elems = document.getElementsByTagName(type || "*");
+    var regex = new RegExp("(^|\\s)" + className + "(\\s|$)");
+    var results = [];
+
+    for (var i = 0; length = elems.length; i < length; i++) {
+        if (regex.test(elems[i].className)) {
+            results.push(elems[i]);
+        }
+        return results;
+    }
+}
+</script>
+```
+
+### 4. 常用正则表达式
+
+#### 4.1 去除首尾字符串空格(trim)
 
 ```javascript
 var str = ' I am a cat. ',
@@ -643,7 +717,7 @@ var str = ' I am a cat. ',
 console.log(str.replace(reg, ''));  // I am a cat.
 ```
 
-#### 3.2 匹配电话号码
+#### 4.2 匹配电话号码
 
 ```javascript
 var str = '0715-85624582-234',
@@ -658,7 +732,7 @@ console.log(str.match(reg));    // [ '0715-85624582-234', '0715', '85624582', '2
 console.log(str2.match(reg));   // [ '027-51486325', '027', '51486325', undefined, index: 0, input: '027-51486325' ]
 ```
 
-#### 3.3 匹配手机号码
+#### 4.3 匹配手机号码
 
 ```javascript
 var str = '17985642351',
@@ -667,7 +741,7 @@ var str = '17985642351',
 console.log(str.match(reg));    // [ '17985642351', index: 0, input: '17985642351' ]
 ```
 
-#### 3.4 匹配邮箱
+#### 4.4 匹配邮箱
 
 ```javascript
 var str3 = 'yuzhongzi_91.xiao@sina.com',
@@ -677,7 +751,7 @@ var str3 = 'yuzhongzi_91.xiao@sina.com',
 console.log(str3.match(pattern3));
 ```
 
-#### 3.5 限制文本框只能输入数字和小数点(二位小数点)
+#### 4.5 限制文本框只能输入数字和小数点(二位小数点)
 
 ```javascript
 var reg = /^\d*\.?\d{0,2}$/;
@@ -687,7 +761,7 @@ console.log(reg.test('3'));         // true
 console.log(reg.test('3.3333'));    // false
 ```
 
-#### 3.6 匹配中文
+#### 4.6 匹配中文
 
 ```javascript
 var str = '223我是abc一只猫234',
@@ -696,7 +770,7 @@ var str = '223我是abc一只猫234',
 console.log(str.match(reg));    // [ '我', '是', '一', '只', '猫' ]
 ```
 
-#### 3.7 匹配标签中的内容
+#### 4.7 匹配标签中的内容
 
 ```javascript
 var str = '<div>java<p>hello</p>script</div>',
@@ -710,7 +784,7 @@ if (reg.test(str)) {
 }
 ```
 
-#### 3.8 匹配带有属性的标签
+#### 4.8 匹配带有属性的标签
 
 ```javascript
 var str = '<div class="test" id="test" data-id="2345-766-sd24">hello</div>',
@@ -721,7 +795,7 @@ if (reg.test(str)) {
 }
 ```
 
-#### 3.9 将数字转化为中文大写字符
+#### 4.9 将数字转化为中文大写字符
 
 ```javascript
 var arrs = ["零","壹","贰","叁","肆","伍","陆","柒","捌","玖"],
@@ -736,7 +810,7 @@ res = str.replace(reg, function(v) {
 console.log(res);   // 壹叁伍贰陆捌肆玖贰伍捌零
 ```
 
-#### 3.10 查找链接
+#### 4.10 查找链接
 
 ```javascript
 var str = '<a href="http://www.rynxiao.com">rynxiao.com</a>',
@@ -745,7 +819,7 @@ var str = '<a href="http://www.rynxiao.com">rynxiao.com</a>',
 console.log(str.match(reg)[0]); // http://www.rynxiao.com
 ```
 
-### 4. 参考资料
+### 5. 参考资料
 
 + 书籍
 
