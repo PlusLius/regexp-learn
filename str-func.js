@@ -38,10 +38,11 @@ str2.replace(/\d+/g, function(a, b, c, d) {
     console.log(a, b, c, d);
 });
 
-var str3 = 'yuzhongzi_91@sina.com',
-    pattern3 = /^([a-zA-Z][\w\d]+)@([a-zA-Z0-9]+)(\.([a-zA-Z]+))+$/;
+var str3 = 'reg.xiao91@gmail.com',
+    pattern3 = /^(?=[a-zA-Z])([\w\d-]+)(?:\.([\w\d-]+))*?@([a-zA-Z0-9]+)(?:\.([a-zA-Z]+))+$/;
 
-console.log(str3.match(pattern3));
+console.log(str3.match(pattern3));  // [ 'reg.xiao91@gmail.com', 'reg', 'xiao91', 'gmail', 'com', index: 0, input: 'reg.xiao91@gmail.com' ]
+
 
 var str4 = 'Hope left live become a cat.',
     pat1 = /\s/,
