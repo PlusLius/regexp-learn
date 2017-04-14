@@ -17,3 +17,8 @@ console.log(str.replace(reg, '$1-$2-$3'));
 console.log(str.replace(reg2, '$1/$2'));
 console.log(str.replace(/a/, '$1/$2'));
 console.log(str2.replace(reg2, '$1/$2'));
+
+var str2 = '20170808',
+    reg2 = /(?:\d{4})(\d{2})\1/;
+
+console.log(str2.replace(reg2, '$1'));   // 08
