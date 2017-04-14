@@ -530,3 +530,36 @@ console.log(reg.exec(str));     // [ 'a', index: 0, input: 'aaaa' ]
 console.log(str1.match(reg2));  // [ '<p>Hello</p><p>Javascript</p>', '<p>Javascript</p>', index: 0, input: '<p>Hello</p><p>Javascript</p>' ]
 console.log(str1.match(reg3));  // [ '<p>Hello</p>', '<p>Hello</p>', index: 0, input: '<p>Hello</p><p>Javascript</p>' ]
 ```
+
+#### 2.6 分组
+
+使用`()`表示分组，表示匹配一类字符串，例如：`/(\w\s)+/`表示匹配一个或者多个以字母和空格组合出现的字符串
+
+```javascript
+var str = 'a b c',
+    reg = /(\w\s)+/;
+
+console.log(str.match(reg));    // [ 'a b ', 'b ', index: 0, input: 'a b c' ]
+```
+
+当用于模式匹配之后，匹配到的元组就被成为捕获组。捕获组对应着括号的数量，分别使用`$1`,`$2`...`$99`...`$x`表示匹配到的捕获组，另外可以使用`\1`,`\2`...`\99`...`\x`表示引用捕获组。
+
+```javascript
+var str = '20170809',
+    str2 = '20170808',
+    reg = /(\d{4})(\d{2})(\d{2})/,
+    reg2 = /(\d{4})(\d{2})\2/;
+
+console.log(str.replace(reg, '$1-$2-$3'));  // 2017-08-09
+console.log(str.replace(/a/, '$1/$2'));     // 20170809
+console.log(str.replace(reg2, '$1/$2'));    // 20170809
+console.log(str2.replace(reg2, '$1/$2'));   // 2017/08
+```
+
+可以看到第三个打印与第四个打印之间的差异，原因是因为第三个没有正则匹配项。
+
+`\x`表示引用，引用的是具体的匹配字符串，也就是说上面例子中的`\2`引用的是第二个捕获组中的内容，其实应该对应的是"08"字符串，因此"20170808"当然与"20170809"字符串不匹配；反证可以看第四个匹配，验证了上面的结果。
+
+#### 2.7 或操作符(|)
+
+用(|)表示或者的关系。例如：`/a|b/`表示匹配字符"a"或者"b"，`/(ab)+|(def)+/`表示匹配一次或者多次出现的"ab"或者"def"
