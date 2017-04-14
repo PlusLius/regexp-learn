@@ -412,10 +412,10 @@ console.log(str.match(pattern));    // [ 'W', 'W' ]
 
 由于RegExp构造函数的模式参数是字符串，所以在某些情况下需要双重转义。例如：
 
-| 字面量模式        |  等价的字符串        |
-|:---------------:|:-------------------:|
-|/\\[abc\\]/        |"\\\\[abc\\\\]"          |
-|/\\w{2, 3}/       |"\\\\w{2, 3}"          |
+| 字面量模式        |  等价的字符串               |
+|:---------------:|:-------------------------:|
+|/\\[abc\\]/      |"\\\\[abc\\\\]"            |
+|/\\w{2, 3}/      |"\\\\w{2, 3}"              |
 
 ```javascript
 var reg1 = /\[abc\]/,
@@ -426,4 +426,107 @@ console.log(str.match(reg1));   // [ '[abc]', index: 0, input: '[abc]' ]
 console.log(str.match(reg2));   // [ '[abc]', index: 0, input: '[abc]' ]
 console.log(reg1.source);       // \[abc\]
 console.log(reg2.source);       // \[abc\]
+```
+
+#### 2.4 匹配开始和结尾(^,$)
+
+- 匹配一个字符串的开始使用符号(^)，例如: /^java/表示匹配已"java"开头的字符串
+- 匹配一个字符串的结尾使用符号($)，例如: /script$/表示匹配已"script"结尾的字符串
+- 如果一个正则表达式中即出现了(^)又出现了($)，表示必须匹配整个候选字符串，例如：/^javaScript$/表示匹配整个"javaScript"字符串
+
+```javascript
+var str = 'javaScript is fun',
+    str2 = 'JavaScript',
+    reg1 = /^java/,
+    reg2 = /fun$/i,
+    reg3 = /^javascript$/i;
+
+console.log(reg1.test(str));    // true
+console.log(reg2.test(str));    // true
+console.log(reg3.test(str));    // false
+console.log(reg3.test(str2));   // true
+```
+
+#### 2.5 重复
+
+##### 2.5.1 贪婪重复
+
+要连续匹配四个'a'，我们可以使用`/aaaa/`来进行匹配，但如果匹配的不止是四个，而是十几个呢？想必是不方便的，在重复匹配的选项上，正则表达式提供了很多方式。
+
+**贪婪匹配** 贪婪匹配表示尽可能多的匹配，例如`/a+/`表示至少匹配一个"a"字符，即表示有多少个"a"就会匹配多少个，例如：
+
+```javascript
+var str = 'aaaaa',
+    str1 = 'aaaaaaaaaa',
+    reg = /a+/;
+
+console.log(reg.exec(str));     // [ 'aaaaa', index: 0, input: 'aaaaa' ]
+console.log(reg.exec(str1));    // [ 'aaaaaaaaaa', index: 0, input: 'aaaaaaaaaa' ]
+```
+
+在贪婪重复上，正则表达式主要有以下方式：
+
+|字符                   |含义                   |
+|:--------------------:|:--------------------  |
+|{x,y}                 |匹配至少x次，最多y次      |
+|{x,}                  |匹配至少x次              |
+|{x}                   |匹配x次                 |
+|?                     |匹配0次或者1次, { 0, 1 } |
+|+                     |匹配至少1次, { 1, }      |
+|*                     |匹配0次或者多次, { 0, }   |
+
+```javascript
+// {2,3} 匹配至少2次，最多3次
+var str = '.abc.def.xyz.com',
+    reg = /(.\w+){2,3}/;
+
+console.log(str.match(reg));    // [ '.abc.def.xyz', '.xyz', index: 0, input: '.abc.def.xyz.com' ]
+
+// {2,} 匹配至少2次
+var str = '.abc.def.xyz.com',
+    reg = /(.\w+){2,}/;
+
+console.log(str.match(reg));    // [ '.abc.def.xyz.com', '.com', index: 0, input: '.abc.def.xyz.com' ]
+
+// {2} 匹配2次
+var str = '.abc.def.xyz.com',
+    reg = /(.\w+){2}/;
+
+console.log(str.match(reg));    // [ '.abc.def', '.def', index: 0, input: '.abc.def.xyz.com' ]
+
+// ? 匹配0次或者1次
+var str = '.abc//.def.xyz.com',
+    reg = /(.\w+\/?)?/;
+
+console.log(str.match(reg));    // [ '.abc/', '.abc/', index: 0, input: '.abc//.def.xyz.com' ]
+
+// * 匹配0次或者多次
+var str = '.abc//.def.xyz.com',
+    reg = /(.\w+\/*)*/;
+
+console.log(str.match(reg));    // [ '.abc//.def.xyz.com', '.com', index: 0, input: '.abc//.def.xyz.com' ]
+
+// + 匹配1次或者多次
+var str = '.abc//.def.xyz.com',
+    reg = /(.\w+\/+)+/;
+
+console.log(str.match(reg));    // [ '.abc//.def.xyz.com', '.com', index: 0, input: '.abc//.def.xyz.com' ]
+```
+
+##### 2.5.2 非贪婪重复
+
+非贪婪模式就是在贪婪模式后面加上一个"?"，表示尽尽可能少的匹配，例如：
+
+`{x,y}?, {x,}?, {x}?, ??, +? *?`
+
+```javascript
+var str = 'aaaa',
+    str1 = '<p>Hello</p><p>Javascript</p>',
+    reg = /a+?/,
+    reg2 = /(<p>[^<]*<\/p>)+/,
+    reg3 = /(<p>[^<]*<\/p>)+?/;
+
+console.log(reg.exec(str));     // [ 'a', index: 0, input: 'aaaa' ]
+console.log(str1.match(reg2));  // [ '<p>Hello</p><p>Javascript</p>', '<p>Javascript</p>', index: 0, input: '<p>Hello</p><p>Javascript</p>' ]
+console.log(str1.match(reg3));  // [ '<p>Hello</p>', '<p>Hello</p>', index: 0, input: '<p>Hello</p><p>Javascript</p>' ]
 ```
