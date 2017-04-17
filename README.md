@@ -819,7 +819,7 @@ var str = '<a href="http://www.rynxiao.com">rynxiao.com</a>',
 console.log(str.match(reg)[0]); // http://www.rynxiao.com
 ```
 
-### 6. ES6新增
+### 5. ES6新增
 
 + 构造函数可以添加第二个规则参数
 
@@ -910,7 +910,7 @@ regex.test('㉛㉜㉝') // true
 regex.test('ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ') // true
 ```
 
-### 5. 参考资料
+### 6. 参考资料
 
 + 书籍
 
