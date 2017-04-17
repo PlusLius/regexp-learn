@@ -819,6 +819,97 @@ var str = '<a href="http://www.rynxiao.com">rynxiao.com</a>',
 console.log(str.match(reg)[0]); // http://www.rynxiao.com
 ```
 
+### 6. ES6新增
+
++ 构造函数可以添加第二个规则参数
+
+```javascript
+// es5添加第二个参数时会报错
+var regex = new RegExp(/test/, 'i');
+
+// es6
+var regex = new RegExp(/test/, 'ig');
+regex.flags; // ig
+```
+
++ 添加了`u`修饰符，含义为"Unicode"模式，用来正确处理大于`\uFFFF`的Unicode字符。
+
+```javascript
+// \uD83D\uDC2A会被es5认为是两个字符，加了u之后就会被认定为一个字符
+/^\uD83D/u.test('\uD83D\uDC2A'); // false
+/^\uD83D/.test('\uD83D\uDC2A');  // true
+```
+`u`字符对正则表达式行为造成的影响，具体参考阮一峰的[《ECMAScript 6入门》](http://es6.ruanyifeng.com/#docs/regex)
+
++ 添加了`y`修饰符(粘连修饰符)，全局匹配，但必须从剩余字符串的第一个位置进行匹配。
+
+```javascript
+var str = 'aaa_aa_a',
+    reg1 = /a+/g,
+    reg2 = /a+/y;
+
+reg1.exec(str); // aaa
+reg2.exec(str); // aaa
+
+reg1.exec(str); // aa
+// 第二次执为null，是因为剩余字符串为_aa_a，必须从头部开始匹配，因此没有匹配到规则`a+`
+// 若将reg1和reg2修改为`/a+_/g`和/a+_/y，结果将相同
+reg2.exec(str); // null
+```
+
++ 增加了RegExp实例属性`sticky`，表示是否设置了`y`标志
+
+```javascript
+var r = /test/y;
+r.sticky;   // true
+```
+
++ 增加了RegExp实例属性`flags`，表示正则表达式的修饰符
+
+```javascript
+var r = /test/ig;
+r.flags;   // gi
+```
+
++ 构造函数增加方法`RegExp.escape()`，表示对字符串转义，用于正则模式
+
+```javascript
+RegExp.escape('The Quick Brown Fox');
+// "The Quick Brown Fox"
+
+RegExp.escape('Buy it. use it. break it. fix it.');
+// "Buy it\. use it\. break it\. fix it\."
+
+RegExp.escape('(*.*)');
+// "\(\*\.\*\)"
+```
+
++ 增加修饰符`s`，可以使得`.`可以匹配任意单个字符，包括行终止符(\n,\r,U+2018,U+2029)
+
+```javascript
+const re = /foo.bar/s;
+// 另一种写法
+// const re = new RegExp('foo.bar', 's');
+
+re.test('foo\nbar') // true
+re.dotAll // true
+re.flags // 's'
+```
+
++ 支持后行断言，具体参看[断言](#28-断言)所讲
+
++ Unicode属性类
+
+> 目前，有一个提案，引入了一种新的类的写法\p{...}和\P{...}，允许正则表达式匹配符合Unicode某种属性的所有字符。
+
+```javascript
+// 匹配所有数字
+const regex = /^\p{Number}+$/u;
+regex.test('²³¹¼½¾') // true
+regex.test('㉛㉜㉝') // true
+regex.test('ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ') // true
+```
+
 ### 5. 参考资料
 
 + 书籍
@@ -838,3 +929,5 @@ console.log(str.match(reg)[0]); // http://www.rynxiao.com
 [http://blog.csdn.net/yuzhongzi81/article/details/45582319](http://blog.csdn.net/yuzhongzi81/article/details/45582319)
 
 [http://www.cnblogs.com/tugenhua0707/p/5037811.html](http://www.cnblogs.com/tugenhua0707/p/5037811.html)
+
+[ECMAScript 6 入门](http://es6.ruanyifeng.com/#docs/regex)
